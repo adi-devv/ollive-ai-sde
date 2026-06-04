@@ -3,7 +3,7 @@ Build a lightweight inference logging and ingestion system for an LLM applicatio
 Build a simple chatbot using any foundation model API.
 Examples:
 GPT-4.1
-Claude Sonnet
+Llama / GPT / Gemini
 Gemini
 DeepSeek
 Grok

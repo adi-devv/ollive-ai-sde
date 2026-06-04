@@ -157,7 +157,7 @@ logger = LLMLogger(ingestion_url="http://localhost:8000")
 client = logger.wrap_anthropic(raw_client)
 
 response = client.messages.create(
-    model="claude-sonnet-4-6",
+    model="your-model-here",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello!"}],
 )
