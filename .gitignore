@@ -36,3 +36,8 @@ Thumbs.db
 
 # Distribution / packaging
 *.whl
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite3
