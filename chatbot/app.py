@@ -127,7 +127,7 @@ def _init_state() -> None:
 
 
 def _get_or_build_client():
-    """Return the (possibly wrapped) Anthropic client, building it once."""
+    """Return the LLM client (Groq-wrapped), building it once."""
     if st.session_state.llm_client is not None:
         return st.session_state.llm_client
 

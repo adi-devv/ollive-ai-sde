@@ -11,7 +11,7 @@ setup(
         "requests>=2.28",
     ],
     extras_require={
-        "anthropic": ["anthropic>=0.25"],
+        "anthropic": ["anthropic>=0.25"],  # optional: for Anthropic client wrapping
         "openai": ["openai>=1.0"],
         "all": ["anthropic>=0.25", "openai>=1.0"],
     },

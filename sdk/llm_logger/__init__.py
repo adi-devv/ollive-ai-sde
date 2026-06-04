@@ -3,14 +3,14 @@ llm_logger — lightweight SDK for capturing LLM inference metadata.
 
 Quick-start::
 
+    from groq import Groq
     from llm_logger import LLMLogger
-    import anthropic
 
-    client = anthropic.Anthropic()
+    client = Groq(api_key="your-key")
     llm_logger = LLMLogger(ingestion_url="http://localhost:8000")
-    client = llm_logger.wrap_anthropic(client)
+    client = llm_logger.wrap_openai(client)  # Groq is OpenAI-compatible
 
-    # All subsequent client.messages.create() calls are logged automatically.
+    # All subsequent client.chat.completions.create() calls are logged automatically.
 """
 
 from .logger import LLMLogger

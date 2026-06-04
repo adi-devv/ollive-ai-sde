@@ -96,7 +96,7 @@ def list_logs(
     List inference logs with optional filters and pagination.
 
     Filters:
-    - **provider** — exact match on provider field (e.g. ``anthropic``)
+    - **provider** — exact match on provider field (e.g. ``groq``)
     - **model** — exact match on model field
     - **status** — ``success`` or ``error``
     - **conversation_id** — restrict to one conversation

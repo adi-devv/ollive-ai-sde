@@ -1,5 +1,5 @@
 """
-LLMLogger — intercepts calls to Anthropic and OpenAI clients,
+LLMLogger — intercepts calls to Groq / OpenAI-compatible clients,
 captures inference metadata, and ships logs to the ingestion service.
 """
 
@@ -101,15 +101,15 @@ class LLMLogger:
 
     Usage::
 
-        import anthropic
+        from groq import Groq
         from llm_logger import LLMLogger
 
-        client = anthropic.Anthropic()
+        client = Groq(api_key="your-key")
         logger = LLMLogger(ingestion_url="http://localhost:8000")
-        client = logger.wrap_anthropic(client)
+        client = logger.wrap_openai(client)  # Groq is OpenAI-compatible
 
-        response = client.messages.create(
-            model="claude-sonnet-4-6",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             max_tokens=1024,
             messages=[{"role": "user", "content": "Hello!"}],
         )
@@ -130,7 +130,7 @@ class LLMLogger:
         input/output previews before they are stored.
     conversation_id:
         Fixed conversation UUID.  When *None* a new UUID is generated per
-        :meth:`wrap_anthropic` / :meth:`wrap_openai` call.
+        :meth:`wrap_openai` call.
     """
 
     def __init__(
@@ -154,7 +154,7 @@ class LLMLogger:
     # ------------------------------------------------------------------
 
     def wrap_anthropic(self, client: Any) -> Any:
-        """Return a proxy that intercepts ``.messages.create()`` calls."""
+        """Return a proxy that intercepts Anthropic-style ``.messages.create()`` calls."""
         return _AnthropicClientProxy(client, self)
 
     def wrap_openai(self, client: Any) -> Any:
