@@ -290,3 +290,4 @@ Full message content (user + assistant turns) is stored separately from inferenc
 6. **Kubernetes manifests** — Deployment + Service + ConfigMap YAMLs for each component
 7. **OpenTelemetry** — emit traces alongside logs for distributed tracing
 8. **Auth** — API key middleware on the ingestion service
+
