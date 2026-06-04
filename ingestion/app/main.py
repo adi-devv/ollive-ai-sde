@@ -71,3 +71,6 @@ def build_app() -> FastAPI:
 create_tables()
 
 app = build_app()
+
+
+
