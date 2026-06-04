@@ -1,5 +1,5 @@
 """
-Streamlit chatbot powered by Claude Sonnet via the LLMLogger SDK.
+Streamlit chatbot powered by Llama 3.3 70B (Groq) via the LLMLogger SDK.
 
 Features:
 - Multi-turn conversations with message history
@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-import anthropic
+from groq import Groq
 import requests
 import streamlit as st
 
@@ -39,9 +39,9 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
+GROQ_API_KEY: str = os.environ.get("GROQ_API_KEY", "")
 INGESTION_URL: str = os.environ.get("INGESTION_URL", "http://localhost:8000")
-MODEL: str = "claude-sonnet-4-6"
+MODEL: str = "llama-3.3-70b-versatile"
 MAX_TOKENS: int = 1024
 
 # ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ def _get_or_build_client():
     if st.session_state.anthropic_client is not None:
         return st.session_state.anthropic_client
 
-    raw_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    raw_client = Groq(api_key=GROQ_API_KEY)
 
     if _HAS_LOGGER:
         llm_logger = LLMLogger(
@@ -141,7 +141,7 @@ def _get_or_build_client():
             conversation_id=st.session_state.conversation_id,
         )
         st.session_state.llm_logger = llm_logger
-        client = llm_logger.wrap_anthropic(raw_client)
+        client = llm_logger.wrap_openai(raw_client)  # Groq is OpenAI-compatible
     else:
         client = raw_client
 
@@ -269,11 +269,8 @@ def render_chat() -> None:
                 )
 
     # Chat input
-    if not ANTHROPIC_API_KEY:
-        st.error(
-            "ANTHROPIC_API_KEY is not set. "
-            "Set it in your environment or .env file."
-        )
+    if not GROQ_API_KEY:
+        st.error("GROQ_API_KEY is not set. Set it in your .env file.")
         return
 
     user_input = st.chat_input("Type a message…")
@@ -309,23 +306,19 @@ def render_chat() -> None:
         with st.spinner("Thinking…"):
             t0 = time.monotonic()
             try:
-                response = client.messages.create(
+                response = client.chat.completions.create(
                     model=MODEL,
                     max_tokens=MAX_TOKENS,
                     messages=api_messages,
                 )
                 elapsed_ms = int((time.monotonic() - t0) * 1000)
 
-                # Extract response text
-                content_blocks = getattr(response, "content", [])
-                assistant_text = " ".join(
-                    getattr(b, "text", "") for b in content_blocks
-                )
+                assistant_text = response.choices[0].message.content or ""
 
                 # Token counts from response
                 usage = getattr(response, "usage", None)
-                prompt_tokens = getattr(usage, "input_tokens", 0) if usage else 0
-                completion_tokens = getattr(usage, "output_tokens", 0) if usage else 0
+                prompt_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+                completion_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
                 total_tokens = prompt_tokens + completion_tokens
 
                 placeholder.markdown(assistant_text)
@@ -349,10 +342,6 @@ def render_chat() -> None:
                     st.session_state.conversation_id, "assistant", assistant_text, st.session_state.session_id
                 )
 
-            except anthropic.AuthenticationError:
-                placeholder.error(
-                    "Authentication failed. Check your ANTHROPIC_API_KEY."
-                )
             except Exception as exc:
                 placeholder.error(f"Error: {exc}")
 

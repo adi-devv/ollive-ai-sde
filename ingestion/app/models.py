@@ -8,6 +8,8 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+import sqlite3
+
 from sqlalchemy import (
     DateTime,
     ForeignKey,
@@ -15,8 +17,20 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    event,
 )
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+
+# Enable foreign keys + WAL for SQLite
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragma(dbapi_conn, _):
+    if isinstance(dbapi_conn, sqlite3.Connection):
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA foreign_keys=ON")
+        cur.execute("PRAGMA journal_mode=WAL")
+        cur.close()
 
 from .database import Base
 
