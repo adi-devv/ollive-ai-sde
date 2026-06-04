@@ -116,8 +116,8 @@ def _init_state() -> None:
         st.session_state.messages = []
     if "llm_logger" not in st.session_state:
         st.session_state.llm_logger = None
-    if "anthropic_client" not in st.session_state:
-        st.session_state.anthropic_client = None
+    if "llm_client" not in st.session_state:
+        st.session_state.llm_client = None
     if "conv_list" not in st.session_state:
         st.session_state.conv_list = []
     if "last_conv_refresh" not in st.session_state:
@@ -128,8 +128,8 @@ def _init_state() -> None:
 
 def _get_or_build_client():
     """Return the (possibly wrapped) Anthropic client, building it once."""
-    if st.session_state.anthropic_client is not None:
-        return st.session_state.anthropic_client
+    if st.session_state.llm_client is not None:
+        return st.session_state.llm_client
 
     raw_client = Groq(api_key=GROQ_API_KEY)
 
@@ -145,7 +145,7 @@ def _get_or_build_client():
     else:
         client = raw_client
 
-    st.session_state.anthropic_client = client
+    st.session_state.llm_client = client
     return client
 
 
@@ -161,7 +161,7 @@ def _start_new_conversation() -> None:
     st.session_state.conversation_id = new_id
     st.session_state.messages = []
     # rebuild client with new conversation id
-    st.session_state.anthropic_client = None
+    st.session_state.llm_client = None
     st.session_state.llm_logger = None
     _refresh_conversations(force=True)
     st.rerun()
@@ -176,7 +176,7 @@ def _load_conversation(conv_id: str) -> None:
 
     st.session_state.conversation_id = conv_id
     st.session_state.messages = []
-    st.session_state.anthropic_client = None
+    st.session_state.llm_client = None
     st.session_state.llm_logger = None
 
     raw_messages = sorted(detail.get("messages", []), key=lambda m: m["created_at"])
